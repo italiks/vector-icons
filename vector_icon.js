@@ -227,6 +227,12 @@ function updatePreviewIfVectorIcon(source_code, delegate, container) {
   original.innerHTML = '';
   original.appendChild(svg);
 
+  const link = document.createElement('a');
+  const blob = new Blob([svg], {type: 'image/svg+xml'});
+  link.href = URL.createObjectURL(blob);
+  link.download = `${window.location.pathname.split('/').pop()}.svg`;
+  container.querySelector('#preview-scaled').appendChild(link);
+
   var svgSource = (new XMLSerializer).serializeToString(svg);
 
   var scaledSvg = document.createElement('img');
@@ -237,9 +243,10 @@ function updatePreviewIfVectorIcon(source_code, delegate, container) {
   scaledSvg.setAttribute('src',
      'data:image/svg+xml;utf8,'+svgSource);
 
-  var scaled = container.querySelector('#preview-scaled');
-  scaled.innerHTML = '';
-  scaled.appendChild(scaledSvg);
+  link.innerHTML = '';
+  link.appendChild(scaledSvg);
+
+  return svgSource;
 }
 
 function setUpPreviewPanel(source_code, delegate) {
@@ -256,7 +263,7 @@ function setUpPreviewPanel(source_code, delegate) {
   var scaled = document.createElement('div');
   scaled.id = 'preview-scaled';
   container.appendChild(scaled);
-  updatePreviewIfVectorIcon(source_code, delegate, container);
+  const svg = updatePreviewIfVectorIcon(source_code, delegate, container);
 
   var observer = new MutationObserver(function(mutations) {
     updatePreviewIfVectorIcon(source_code, delegate, container);
